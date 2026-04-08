@@ -1478,3 +1478,83 @@ body.pyeong-mode .u-sqm    { display: none !important; }
     opacity: 0.55;
     margin: 0;
 }
+
+
+/* ══════════════════════════════════════════════
+   생애최초 LTV 토글 버튼
+══════════════════════════════════════════════ */
+.first-home-btn {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.8rem; font-weight: 700;
+    padding: 6px 12px; border-radius: 20px;
+    cursor: pointer; transition: 0.2s;
+    font-family: inherit; white-space: nowrap;
+}
+.first-home-btn:hover {
+    border-color: #16a34a;
+    color: #16a34a;
+    background: rgba(22,163,74,0.06);
+}
+.first-home-btn.active {
+    background: rgba(22,163,74,0.12);
+    border-color: #16a34a;
+    color: #15803d;
+    font-weight: 800;
+}
+.first-home-btn.active::after {
+    content: ' ON';
+    font-size: 0.72rem;
+    font-weight: 900;
+    opacity: 0.8;
+}
+@media (prefers-color-scheme: dark) {
+    .first-home-btn.active {
+        background: rgba(22,163,74,0.18);
+        color: #86efac;
+        border-color: rgba(22,163,74,0.5);
+    }
+}
+
+/* 생애최초 대출 배지 — 녹색 계열 */
+.loan-badge.loan-first-home,
+.loan-tag.loan-first-home {
+    background: rgba(22,163,74,0.12);
+    color: #15803d;
+    border: 1px solid rgba(22,163,74,0.3);
+}
+@media (prefers-color-scheme: dark) {
+    .loan-badge.loan-first-home,
+    .loan-tag.loan-first-home {
+        background: rgba(22,163,74,0.2);
+        color: #86efac;
+        border-color: rgba(22,163,74,0.35);
+    }
+}
+
+/* 생애최초 LTV 칩 */
+.ltv-chip.ltv-first {
+    border-color: rgba(22,163,74,0.4) !important;
+    background: rgba(22,163,74,0.1) !important;
+    color: #15803d !important;
+}
+.ltv-fh-mark {
+    font-style: normal;
+    font-size: 0.6rem;
+    font-weight: 900;
+    background: rgba(22,163,74,0.2);
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-left: 3px;
+    vertical-align: middle;
+}
+@media (prefers-color-scheme: dark) {
+    .ltv-chip.ltv-first { color: #86efac !important; }
+}
+
+/* 모바일: 생애최초 버튼 텍스트 축약 */
+@media screen and (max-width: 480px) {
+    .first-home-btn { font-size: 0.75rem; padding: 5px 9px; }
+}
