@@ -224,9 +224,16 @@ body {
 
 
 /* ── 기준일 라벨 ── */
+.date-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+    min-height: 26px;
+}
 .base-date-label {
     font-size: 0.78rem; color: var(--text-muted);
-    text-align: right; padding-right: 4px; font-weight: 600;
+    font-weight: 600;
 }
 
 
@@ -1558,3 +1565,4 @@ body.pyeong-mode .u-sqm    { display: none !important; }
 @media screen and (max-width: 480px) {
     .first-home-btn { font-size: 0.75rem; padding: 5px 9px; }
 }
+
