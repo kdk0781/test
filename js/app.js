@@ -1,16 +1,19 @@
 const _V = 'v9.0';
 const _SEM = {
 icon: '🔒',
-title: '트래픽 초과로 만료되었습니다.',
+title: '링크가 만료되었습니다',
 desc: '접속량이 많아 유효한 페이지가 아닙니다.',
 sub: '담당자분께 링크를 다시 요청하세요.',
 };
 const _SS = 'kdk_apt_2026_!@#'; // ← 원하는 값으로 변경
 const _SP = 'k';
 const _CNS = 'kdk-apt-map'; // ← 변경 가능 (다른 사이트와 충돌 방지용)
+const PUSH_WORKER_URL = ''; // ← Cloudflare Worker URL (예: https://push.yourname.workers.dev)
+const PUSH_ADMIN_KEY = ''; // ← ADMIN_KEY (Worker 환경변수와 동일한 값)
 const _SCT = (url) =>
 `[KB 아파트 시세표]
 아래 링크를 클릭하면 주간 시세를 확인하실 수 있습니다.
+유효 기간이 있는 임시 링크이며, 기간 만료 시 접속이 제한됩니다.
 ${url}`;
 function _sE(payload) {
 const key = _SS;
@@ -96,7 +99,8 @@ window.addEventListener('beforeinstallprompt', e=>{
 e.preventDefault();
 e.stopImmediatePropagation();
 }, { capture: true });
-window._shareOrigUrl = origUrl; // 재공유용 URL
+window._blockPWA = true;
+window._shareOrigUrl = origUrl;
 window._isShareRecipient = true;
 window._shareIncludeFavs = !!decoded.includeFavs;
 return true;
@@ -229,9 +233,28 @@ document.addEventListener('DOMContentLoaded', ()=>{
 if (!_sV) return; // 만료 링크면 앱 초기화 중단
 const vEl = document.getElementById('splashVersion');
 if (vEl) vEl.textContent = _V;
+if (window._blockPWA) {
+document.querySelectorAll(
+'link[rel="manifest"], link[rel="apple-touch-icon"], ' +
+'meta[name="apple-mobile-web-app-capable"], ' +
+'meta[name="mobile-web-app-capable"]'
+).forEach(el=>el.remove());
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.getRegistrations()
+.then(regs=>regs.forEach(r=>r.unregister()))
+.catch(()=>{});
+}
+}
 const _isShared = !!window._isShareRecipient;
 if ('serviceWorker' in navigator&&!_isShared) {
-navigator.serviceWorker.register('sw.js').catch(()=>{});
+navigator.serviceWorker.register('sw.js').then(reg=>{
+setTimeout(()=>_rNP(), 3000);
+navigator.serviceWorker.addEventListener('message', (e)=>{
+if (e.data?.type==='CSV_UPDATED') {
+_sCUB();
+}
+});
+}).catch(()=>{});
 }
 document.getElementById('hardRefreshBtn').addEventListener('click', async ()=>{
 document.querySelector('#hardRefreshBtn span').textContent = '업데이트 중...';
@@ -330,6 +353,20 @@ _rRSU();
 _sTVP();
 return;
 }
+if (v==='알림전송') {
+e.preventDefault();
+_si.value = '';
+_rRSU();
+showPushAdminPanel();
+return;
+}
+if (v==='알림구독') {
+e.preventDefault();
+_si.value = '';
+_rRSU();
+requestPushPermission();
+return;
+}
 _saveSearchTerm();
 _rRSU();
 }
@@ -386,6 +423,9 @@ return; // _lD는 startApp()에서 호출
 }
 _tTV(!!window._isShareRecipient);
 _lD();
+if (isPWAInstalled()) {
+setupPushNotification();
+}
 });
 function _sSP() {
 const el = document.querySelector('.sticky-header');
@@ -902,6 +942,7 @@ const exp = Date.now() + dur * unit;
 const _inclFav = document.getElementById('shareFavToggle')?.checked||false;
 const token = _sE({ exp, includeFavs: _inclFav });
 const baseUrl = new URL(location.href);
+baseUrl.pathname = baseUrl.pathname.replace(/\/index\.html$/, '/');
 baseUrl.search = '?' + _SP + '=' + token;
 baseUrl.hash = '';
 const longUrl = baseUrl.toString();
@@ -1079,12 +1120,13 @@ const dupKey = '_today_hit_' + apiKey;
 const storage = isRecipient ? sessionStorage : localStorage;
 if (storage.getItem(dupKey)) return;
 try {
-await fetch(
-`https://api.counterapi.dev/v1/${_CNS}/${apiKey}/up`,
-{ method: 'GET' }
+const res = await fetch(
+`https://api.countapi.xyz/hit/${_CNS}/${apiKey}`
 );
+if (res.ok) {
 storage.setItem(dupKey, '1');
 if (!isRecipient) _cOHK();
+}
 } catch (_) {}
 }
 function _cOHK() {
@@ -1144,9 +1186,9 @@ const directKey = dateKey; // d-YYYYMMDD
 const shareKey = 's-' + dateKey.slice(2); // s-YYYYMMDD
 const fetchCount = async (key)=>{
 try {
-const res = await fetch(`https://api.counterapi.dev/v1/${_CNS}/${key}/get`);
+const res = await fetch(`https://api.countapi.xyz/get/${_CNS}/${key}`);
 const data = await res.json();
-return data?.value ?? data?.count ?? 0;
+return data?.value ?? 0;
 } catch (_) { return null; }
 };
 const fmt = (n)=>n===null
@@ -1165,4 +1207,214 @@ if (elT) {
 const total = (direct ?? 0) + (share ?? 0);
 elT.innerHTML = `<span class="tp-num-sm tp-total-num">${total.toLocaleString('ko-KR')}</span><span class="tp-unit-sm">명</span>`;
 }
+}
+async function _rNP() {
+if (!('Notification' in window)) return; // 미지원 브라우저
+if (Notification.permission==='granted') return; // 이미 허용
+if (Notification.permission==='denied') return; // 이미 거부
+try {
+const result = await Notification.requestPermission();
+console.log('[알림]', result);
+} catch (_) {}
+}
+function _sCUB() {
+if (document.getElementById('csvUpdateBanner')) return;
+const banner = document.createElement('div');
+banner.id = 'csvUpdateBanner';
+banner.className = 'csv-update-banner';
+banner.innerHTML = `
+<span class="cub-icon">📊</span>
+<span class="cub-msg">새로운 시세 데이터가 업로드되었습니다.</span>
+<button class="cub-btn" id="cubRefreshBtn">새로고침</button>
+<button class="cub-close" id="cubCloseBtn" aria-label="닫기">✕</button>`;
+document.body.prepend(banner);
+requestAnimationFrame(()=>banner.classList.add('visible'));
+document.getElementById('cubRefreshBtn').addEventListener('click', ()=>{
+banner.remove();
+window.location.reload(true);
+});
+document.getElementById('cubCloseBtn').addEventListener('click', ()=>{
+banner.classList.remove('visible');
+setTimeout(()=>banner.remove(), 300);
+});
+setTimeout(()=>{
+if (document.getElementById('csvUpdateBanner')) {
+banner.classList.remove('visible');
+setTimeout(()=>banner.remove(), 300);
+}
+}, 15000);
+}
+function isPWAInstalled() {
+return window.matchMedia('(display-mode: standalone)').matches
+|| window.navigator.standalone===true;
+}
+async function setupPushNotification() {
+if (!PUSH_WORKER_URL) return; // Worker URL 미설정 시 스킵
+if (!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)) return;
+if (Notification.permission==='granted') {
+try {
+const reg = await navigator.serviceWorker.ready;
+const sub = await reg.pushManager.getSubscription();
+if (sub) {
+await refreshSubscription(sub); // 서버에 재등록
+return;
+}
+} catch (_) {}
+}
+if (Notification.permission==='default') {
+showPushBanner();
+}
+}
+function showPushBanner() {
+if (document.getElementById('pushBanner')) return;
+const banner = document.createElement('div');
+banner.id = 'pushBanner';
+banner.className = 'push-banner';
+banner.innerHTML = `
+<div class="pb-content">
+<span class="pb-icon">🔔</span>
+<div class="pb-text">
+<strong>시세 업데이트 알림</strong>
+<span>새 데이터 등록 시 알림을 받아보세요</span>
+</div>
+</div>
+<div class="pb-actions">
+<button class="pb-allow" id="pbAllow">허용</button>
+<button class="pb-deny" id="pbDeny">닫기</button>
+</div>`;
+document.body.appendChild(banner);
+setTimeout(()=>banner.classList.add('visible'), 100);
+document.getElementById('pbAllow').addEventListener('click', async ()=>{
+banner.remove();
+await requestPushPermission();
+});
+document.getElementById('pbDeny').addEventListener('click', ()=>{
+banner.classList.remove('visible');
+setTimeout(()=>banner.remove(), 300);
+localStorage.setItem('_push_denied', Date.now()); // 7일간 재표시 안 함
+});
+}
+async function requestPushPermission() {
+if (!PUSH_WORKER_URL) {
+alert('Push Worker URL이 설정되지 않았습니다.\napp_src.js의 PUSH_WORKER_URL을 설정해 주세요.');
+return;
+}
+const perm = await Notification.requestPermission();
+if (perm!=='granted') {
+alert('알림 권한이 거부되었습니다.\n브라우저 설정에서 알림을 허용해 주세요.');
+return;
+}
+const ok = await subscribeWebPush();
+if (ok) {
+showToast('🔔 알림이 등록되었습니다!');
+} else {
+showToast('❌ 알림 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+}
+}
+async function subscribeWebPush() {
+try {
+const keyRes = await fetch(`${PUSH_WORKER_URL}/vapid-key`);
+const { publicKey } = await keyRes.json();
+const vapidKey = base64urlToUint8(publicKey);
+const reg = await navigator.serviceWorker.ready;
+const sub = await reg.pushManager.subscribe({
+userVisibleOnly: true,
+applicationServerKey: vapidKey
+});
+return await refreshSubscription(sub);
+} catch (e) {
+console.error('[Push] 구독 실패', e);
+return false;
+}
+}
+async function refreshSubscription(sub) {
+try {
+const res = await fetch(`${PUSH_WORKER_URL}/subscribe`, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(sub.toJSON())
+});
+const data = await res.json();
+return !!data.ok;
+} catch (_) { return false; }
+}
+async function showPushAdminPanel() {
+if (!PUSH_ADMIN_KEY||!PUSH_WORKER_URL) {
+alert('PUSH_WORKER_URL 또는 PUSH_ADMIN_KEY가 설정되지 않았습니다.');
+return;
+}
+let subCount = '...';
+try {
+const r = await fetch(`${PUSH_WORKER_URL}/count`);
+const d = await r.json();
+subCount = d.count ?? '?';
+} catch (_) {}
+document.getElementById('pushAdminPanel')?.remove();
+const panel = document.createElement('div');
+panel.id = 'pushAdminPanel';
+panel.className = 'push-admin-panel';
+panel.innerHTML = `
+<div class="pap-header">
+<span class="pap-title">📢 알림 발송</span>
+<button class="pap-close" id="papClose">✕</button>
+</div>
+<div class="pap-body">
+<div class="pap-stat">
+<span>구독자</span>
+<strong id="papCount">${subCount}명</strong>
+</div>
+<input type="text" id="papTitle" class="pap-input" placeholder="제목 (기본: KB 아파트 시세표)" maxlength="50">
+<textarea id="papMsg" class="pap-textarea" rows="3"
+placeholder="알림 내용 (기본: 새로운 아파트 시세가 업데이트되었습니다!)"
+maxlength="200"></textarea>
+<button class="pap-send-btn" id="papSend">🔔 전체 발송</button>
+<div class="pap-result" id="papResult"></div>
+</div>`;
+document.body.appendChild(panel);
+const close = ()=>panel.remove();
+document.getElementById('papClose').addEventListener('click', close);
+setTimeout(()=>{
+document.addEventListener('click', function _c(e) {
+if (!panel.contains(e.target)) { close(); document.removeEventListener('click', _c); }
+});
+}, 200);
+document.getElementById('papSend').addEventListener('click', async ()=>{
+const title = document.getElementById('papTitle').value.trim()
+|| 'KB 아파트 시세표';
+const message = document.getElementById('papMsg').value.trim()
+|| '새로운 아파트 시세가 업데이트되었습니다!';
+const btn = document.getElementById('papSend');
+const res = document.getElementById('papResult');
+btn.disabled = true;
+btn.textContent = '발송 중...';
+try {
+const r = await fetch(`${PUSH_WORKER_URL}/notify`, {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'Authorization': `Bearer ${PUSH_ADMIN_KEY}`
+},
+body: JSON.stringify({ title, message })
+});
+const d = await r.json();
+res.textContent = `✅ 발송 완료: ${d.sent}/${d.total}명 성공`;
+} catch (e) {
+res.textContent = '❌ 발송 실패. 네트워크를 확인해 주세요.';
+}
+btn.disabled = false;
+btn.textContent = '🔔 전체 발송';
+});
+}
+function showToast(msg) {
+const t = document.createElement('div');
+t.className = 'apt-toast';
+t.textContent = msg;
+document.body.appendChild(t);
+setTimeout(()=>t.classList.add('visible'), 50);
+setTimeout(()=>{ t.classList.remove('visible'); setTimeout(()=>t.remove(), 350); }, 3000);
+}
+function base64urlToUint8(b64u) {
+const b64 = b64u.replace(/-/g, '+').replace(/_/g, '/');
+const raw = atob(b64.padEnd(b64.length + (4 - b64.length % 4) % 4, '='));
+return Uint8Array.from(raw, c=>c.charCodeAt(0));
 }
