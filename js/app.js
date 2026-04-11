@@ -710,6 +710,28 @@ switch (_aS) {
 case 'name': result = [...result].sort((a,b)=>a.아파트.localeCompare(b.아파트,'ko')); break;
 case 'price_asc': result = [...result].sort((a,b)=>(a.minPrice||Infinity)-(b.minPrice||Infinity)); break;
 case 'price_desc':result = [...result].sort((a,b)=>b.maxPrice-a.maxPrice); break;
+case 'diff_up':
+result = result
+.map(g=>{
+const diffs = g.rows.map(r=>r.diffMid).filter(d=>d!==null&&d!==undefined);
+const maxUp = diffs.length ? Math.max(...diffs) : 0;
+return { g, maxUp };
+})
+.filter(({ maxUp })=>maxUp > 0)
+.sort((a, b)=>b.maxUp - a.maxUp)
+.map(({ g })=>g);
+break;
+case 'diff_down':
+result = result
+.map(g=>{
+const diffs = g.rows.map(r=>r.diffMid).filter(d=>d!==null&&d!==undefined);
+const maxDown = diffs.length ? Math.min(...diffs) : 0;
+return { g, maxDown };
+})
+.filter(({ maxDown })=>maxDown < 0)
+.sort((a, b)=>a.maxDown - b.maxDown)
+.map(({ g })=>g);
+break;
 }
 _fG = result;
 _rI();
