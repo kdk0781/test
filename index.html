@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <link rel="stylesheet" href="css/common.css?v=88">
+    <link rel="stylesheet" href="css/common.css?v=89">
 </head>
 <body>
 
@@ -144,7 +144,10 @@
 
         <p class="share-modal-desc">
             링크 접속자는 유효 기간 내 최신 시세를 확인할 수 있습니다.<br>
-            기간이 지나면 자동으로 만료 페이지가 표시됩니다.
+            기간이 지나면 자동으로 만료 페이지가 표시됩니다.<br>
+            <small style="color:var(--text-muted);font-size:0.78rem;">
+                옵션을 켜면 수신자가 즐겨찾기·앱 설치를 사용할 수 있습니다.
+            </small>
         </p>
 
         <!-- 기간 설정 -->
@@ -175,6 +178,18 @@
             </label>
         </div>
 
+        <!-- PWA 설치 권한 토글 -->
+        <div class="share-fav-toggle-wrap">
+            <div class="share-fav-toggle-info">
+                <span class="share-fav-toggle-label">📲 PWA 설치 허용</span>
+                <span class="share-fav-toggle-desc">수신자 홈 화면 설치 가능 + 최초 접속 시 설치 안내</span>
+            </div>
+            <label class="sft-switch">
+                <input type="checkbox" id="sharePwaToggle">
+                <span class="sft-slider"></span>
+            </label>
+        </div>
+
         <!-- 생성된 공유 메시지 미리보기 -->
         <div id="shareResultBox" class="share-result-box" style="display:none">
             <div class="share-exp-label" id="shareExpLabel"></div>
@@ -198,6 +213,6 @@
     </div>
 </div>
 
-<script src="js/app.js?v=88"></script>
+<script src="js/app.js?v=89"></script>
 </body>
 </html>
