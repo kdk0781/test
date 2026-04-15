@@ -1217,7 +1217,6 @@ body.pyeong-mode .u-sqm    { display: none !important; }
     border-radius: 12px;
     margin-bottom: 16px;
     gap: 12px;
-	display:none;
 }
 .share-fav-toggle-info {
     display: flex;
@@ -1580,4 +1579,321 @@ body.pyeong-mode .u-sqm    { display: none !important; }
 .share-url-only-btn:hover {
     border-color: var(--text-muted);
     background: var(--card-bg);
+}
+
+/* ══════════════════════════════════════════════
+   CSV 업데이트 인앱 배너
+══════════════════════════════════════════════ */
+.csv-update-banner {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 16px;
+    background: var(--primary-dark);
+    color: #111;
+    font-size: 0.88rem;
+    font-weight: 700;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.25);
+    transform: translateY(-100%);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.csv-update-banner.visible { transform: translateY(0); }
+.cub-icon { font-size: 1.15rem; flex-shrink: 0; }
+.cub-msg  { flex: 1; font-size: 0.85rem; }
+.cub-btn  {
+    background: rgba(0,0,0,0.15);
+    border: 1.5px solid rgba(0,0,0,0.2);
+    color: #111;
+    font-size: 0.82rem; font-weight: 800;
+    padding: 5px 12px; border-radius: 8px;
+    cursor: pointer; flex-shrink: 0;
+    font-family: inherit; transition: 0.15s;
+}
+.cub-btn:hover  { background: rgba(0,0,0,0.25); }
+.cub-close {
+    background: none; border: none;
+    font-size: 1rem; color: rgba(0,0,0,0.5);
+    cursor: pointer; flex-shrink: 0;
+    padding: 2px 4px; font-family: inherit;
+    transition: 0.15s;
+}
+.cub-close:hover { color: #111; }
+@media (max-width: 480px) {
+    .csv-update-banner { padding: 11px 12px; }
+    .cub-msg { font-size: 0.78rem; }
+}
+
+
+/* ══════════════════════════════════════════════
+   Web Push 알림 배너 (하단 고정)
+══════════════════════════════════════════════ */
+.push-banner {
+    position: fixed;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    z-index: 9000;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 14px 16px;
+    width: min(380px, calc(100vw - 32px));
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 12px;
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.34,1.3,0.64,1), opacity 0.3s;
+}
+.push-banner.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+.pb-content { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.pb-icon { font-size: 1.5rem; flex-shrink: 0; }
+.pb-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pb-text strong { font-size: 0.88rem; font-weight: 800; color: var(--text-main); }
+.pb-text span { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pb-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.pb-allow {
+    background: var(--primary-dark);
+    color: #1a1f24; border: none;
+    padding: 7px 14px; border-radius: 10px;
+    font-size: 0.82rem; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    transition: 0.15s;
+}
+.pb-allow:hover { opacity: 0.85; }
+.pb-deny {
+    background: var(--hover-bg);
+    color: var(--text-muted); border: 1px solid var(--border-color);
+    padding: 7px 10px; border-radius: 10px;
+    font-size: 0.82rem; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+}
+
+/* ══════════════════════════════════════════════
+   관리자 알림 발송 패널
+══════════════════════════════════════════════ */
+.push-admin-panel {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9500;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    width: min(340px, calc(100vw - 32px));
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+    animation: todayPopIn 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.pap-header {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 15px 18px 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+.pap-title { font-size: 0.95rem; font-weight: 800; color: var(--text-main); }
+.pap-close {
+    background: none; border: none; font-size: 1rem;
+    color: var(--text-muted); cursor: pointer;
+    padding: 2px 6px; border-radius: 6px; font-family: inherit;
+}
+.pap-body { padding: 16px 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+.pap-stat {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--hover-bg); border-radius: 10px; padding: 10px 14px;
+    font-size: 0.85rem; color: var(--text-muted);
+}
+.pap-stat strong { font-size: 1.1rem; font-weight: 900; color: var(--text-main); }
+.pap-input, .pap-textarea {
+    width: 100%; padding: 10px 12px;
+    background: var(--hover-bg);
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px; font-size: 0.85rem;
+    color: var(--text-main); font-family: inherit;
+    resize: none; box-sizing: border-box;
+    transition: border-color 0.15s;
+}
+.pap-input:focus, .pap-textarea:focus {
+    outline: none; border-color: var(--primary-dark);
+}
+.pap-send-btn {
+    width: 100%; padding: 13px;
+    background: var(--primary-dark);
+    color: #1a1f24; border: none; border-radius: 12px;
+    font-size: 0.92rem; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    transition: 0.18s;
+}
+.pap-send-btn:hover { opacity: 0.87; }
+.pap-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.pap-result { font-size: 0.82rem; color: var(--text-muted); text-align: center; min-height: 18px; }
+
+/* ── 토스트 ── */
+.apt-toast {
+    position: fixed; bottom: 80px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    z-index: 9800;
+    background: rgba(30,35,40,0.92);
+    color: #fff; border-radius: 30px;
+    padding: 10px 20px; font-size: 0.88rem; font-weight: 600;
+    opacity: 0; transition: 0.3s; pointer-events: none;
+    white-space: nowrap;
+}
+.apt-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ════════════════════════════════════════════
+   v10.0 신규 스타일  (2026-04-15)
+   ─────────────────────────────────────────────
+   - 관리자 모드 배지 (우상단 고정 칩)
+   - PWA 설치 안내 카드 (공유 수신자 + allowPwa)
+   - 공유 버튼 복사 피드백
+════════════════════════════════════════════ */
+
+/* ── 공유 버튼 복사 성공 시 피드백 (인라인 스타일 의존 제거) ── */
+.share-btn.flash-ok {
+    background: var(--primary-color) !important;
+    color: #1a1f24 !important;
+    transition: background 0.18s, color 0.18s;
+}
+
+/* ── 관리자 모드 배지 ──
+   우상단 고정. 모바일에선 살짝 작게.
+   클릭 시 해제 확인 → 새로고침. */
+.admin-badge {
+    position: fixed;
+    top: 10px; right: 10px;
+    z-index: 9700;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, #fde68a 0%, #f59e0b 100%);
+    color: #1a1f24;
+    border: none;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 0.78rem; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.32);
+    opacity: 0; transform: translateY(-8px);
+    transition: opacity 0.22s, transform 0.22s, box-shadow 0.18s;
+    letter-spacing: -0.2px;
+    pointer-events: auto;
+}
+.admin-badge.visible { opacity: 1; transform: translateY(0); }
+.admin-badge:hover   { box-shadow: 0 6px 18px rgba(245, 158, 11, 0.42); }
+.admin-badge:active  { transform: translateY(0) scale(0.96); }
+.admin-badge .ab-crown { font-size: 0.92rem; line-height: 1; }
+.admin-badge .ab-text  { line-height: 1; }
+@media screen and (max-width: 480px) {
+    .admin-badge { top: 8px; right: 8px; padding: 5px 10px; font-size: 0.72rem; }
+}
+
+/* ── PWA 설치 안내 카드 (공유 수신자 + allowPwa) ──
+   하단 sticky. 토스트보다 위. 닫기/설치 버튼 제공. */
+.pwa-install-card {
+    position: fixed;
+    left: 12px; right: 12px; bottom: 12px;
+    max-width: 480px; margin: 0 auto;
+    z-index: 9750;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+    padding: 14px 14px 12px;
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.25s, transform 0.25s;
+    color: var(--text-main);
+}
+.pwa-install-card.visible { opacity: 1; transform: translateY(0); }
+.pic-header {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin-bottom: 10px;
+}
+.pic-icon {
+    font-size: 1.6rem; line-height: 1;
+    flex-shrink: 0;
+    background: var(--hover-bg);
+    border-radius: 12px;
+    padding: 8px;
+}
+.pic-titles {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column; gap: 2px;
+}
+.pic-title {
+    font-size: 0.95rem; font-weight: 800;
+    color: var(--text-main); letter-spacing: -0.3px;
+}
+.pic-desc {
+    font-size: 0.78rem; color: var(--text-muted);
+    line-height: 1.35;
+}
+.pic-close {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--hover-bg);
+    color: var(--text-muted);
+    border: none;
+    font-size: 0.92rem; line-height: 1;
+    cursor: pointer; font-family: inherit;
+    flex-shrink: 0;
+    transition: 0.15s;
+}
+.pic-close:hover  { background: var(--border-color); color: var(--text-main); }
+.pic-close:active { transform: scale(0.92); }
+
+.pic-actions {
+    display: flex; gap: 8px;
+    align-items: stretch;
+}
+.pic-actions:has(.pic-ios-guide) {
+    flex-direction: column;
+    align-items: stretch;
+}
+.pic-btn {
+    flex: 1;
+    border: none; border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.88rem; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    transition: 0.15s;
+    letter-spacing: -0.2px;
+}
+.pic-btn-install {
+    background: var(--primary-dark);
+    color: #1a1f24;
+    flex: 2; /* 설치 버튼이 더 넓게 */
+}
+.pic-btn-install:hover  { opacity: 0.9; }
+.pic-btn-install:active { transform: scale(0.97); }
+.pic-btn-later {
+    background: var(--hover-bg);
+    color: var(--text-muted);
+}
+.pic-btn-later:hover { background: var(--border-color); }
+.pic-ios-guide {
+    margin: 0; padding: 12px 14px;
+    background: var(--hover-bg);
+    border-radius: 10px;
+    font-size: 0.82rem; line-height: 1.5;
+    color: var(--text-main);
+}
+.pic-ios-guide b {
+    color: var(--primary-dark);
+    font-weight: 800;
+}
+.pic-ios-icon {
+    display: inline-block;
+    background: #fff;
+    color: #007AFF;
+    border-radius: 4px;
+    padding: 0 4px;
+    font-weight: 800;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+}
+
+/* 안전 영역 보장 (iOS 노치) */
+@supports (padding: max(0px)) {
+    .pwa-install-card {
+        bottom: max(12px, env(safe-area-inset-bottom));
+    }
 }
