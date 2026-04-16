@@ -1757,34 +1757,58 @@ body.pyeong-mode .u-sqm    { display: none !important; }
     transition: background 0.18s, color 0.18s;
 }
 
-/* ── 관리자 모드 배지 ──
-   우상단 고정. 모바일에선 살짝 작게.
-   클릭 시 해제 확인 → 새로고침. */
-.admin-badge {
-    position: fixed;
-    top: 10px; right: 10px;
-    z-index: 9700;
-    display: inline-flex; align-items: center; gap: 6px;
+/* ── 관리자 모드 인라인 바 ──
+   sticky-header 최상단에 전체 너비로 삽입되는 바.
+   기존 position: fixed 방식은 스크롤 중 헤더와 겹쳐 보이는 문제가 있어
+   헤더 흐름 내부로 이동. max-height 애니메이션으로 부드럽게 등장/소멸. */
+.admin-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     background: linear-gradient(135deg, #fde68a 0%, #f59e0b 100%);
     color: #1a1f24;
-    border: none;
-    border-radius: 999px;
-    padding: 6px 12px;
-    font-size: 0.78rem; font-weight: 800;
-    cursor: pointer; font-family: inherit;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.32);
-    opacity: 0; transform: translateY(-8px);
-    transition: opacity 0.22s, transform 0.22s, box-shadow 0.18s;
+    padding: 0 12px;
+    margin: 0;
+    border-radius: 10px;
+    font-size: 0.82rem; font-weight: 800;
     letter-spacing: -0.2px;
-    pointer-events: auto;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.22);
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.22s, transform 0.22s, max-height 0.28s,
+                margin 0.22s, padding 0.22s;
 }
-.admin-badge.visible { opacity: 1; transform: translateY(0); }
-.admin-badge:hover   { box-shadow: 0 6px 18px rgba(245, 158, 11, 0.42); }
-.admin-badge:active  { transform: translateY(0) scale(0.96); }
-.admin-badge .ab-crown { font-size: 0.92rem; line-height: 1; }
-.admin-badge .ab-text  { line-height: 1; }
+.admin-bar.visible {
+    opacity: 1;
+    max-height: 60px;
+    transform: translateY(0);
+    padding: 8px 12px;
+    margin: 0 0 10px 0;
+}
+.admin-bar .ab-crown { font-size: 1rem;  line-height: 1; }
+.admin-bar .ab-text  { line-height: 1; flex: 1; }
+.admin-bar .ab-off {
+    background: rgba(0, 0, 0, 0.16);
+    color: #1a1f24;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: -0.2px;
+    transition: background 0.15s, transform 0.1s;
+}
+.admin-bar .ab-off:hover  { background: rgba(0, 0, 0, 0.28); }
+.admin-bar .ab-off:active { transform: scale(0.94); }
+
 @media screen and (max-width: 480px) {
-    .admin-badge { top: 8px; right: 8px; padding: 5px 10px; font-size: 0.72rem; }
+    .admin-bar { font-size: 0.76rem; gap: 6px; }
+    .admin-bar.visible { padding: 7px 10px; }
+    .admin-bar .ab-off { padding: 4px 10px; font-size: 0.7rem; }
 }
 
 /* ── PWA 설치 안내 카드 (공유 수신자 + allowPwa) ──
