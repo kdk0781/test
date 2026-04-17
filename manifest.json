@@ -8,13 +8,13 @@
   "theme_color": "#facc15",
   "icons": [
     {
-      "src": "../ico/map192.png",
+      "src": "./ico/map192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "../ico/map192.png",
+      "src": "./ico/map192.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
