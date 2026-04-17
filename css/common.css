@@ -1921,3 +1921,48 @@ body.pyeong-mode .u-sqm    { display: none !important; }
         bottom: max(12px, env(safe-area-inset-bottom));
     }
 }
+
+/* ── 부관리자 수신자 전용 힌트 박스 (공유 모달 내부) ──
+   관리자 모달에서는 숨김, 부관리자가 공유 버튼을 눌렀을 때만 표시됨 */
+.share-deputy-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg,
+                rgba(253, 230, 138, 0.15) 0%,
+                rgba(245, 158, 11, 0.10) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.38);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    font-size: 0.82rem;
+    color: var(--text-main);
+    line-height: 1.5;
+}
+.share-deputy-hint .sdh-badge {
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #fde68a 0%, #f59e0b 100%);
+    color: #1a1f24;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+    align-self: center;
+}
+.share-deputy-hint .sdh-text { flex: 1; min-width: 0; }
+.share-deputy-hint .sdh-text b {
+    color: var(--primary-dark);
+    font-weight: 800;
+}
+
+/* 다크모드 대응 */
+@media (prefers-color-scheme: dark) {
+    .share-deputy-hint {
+        background: linear-gradient(135deg,
+                    rgba(253, 230, 138, 0.10) 0%,
+                    rgba(245, 158, 11, 0.08) 100%);
+        border-color: rgba(245, 158, 11, 0.5);
+    }
+}
