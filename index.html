@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <link rel="stylesheet" href="css/common.css?v=89">
+    <link rel="stylesheet" href="css/common.css?v=91">
 </head>
 <body>
 
@@ -190,6 +190,27 @@
             </label>
         </div>
 
+        <!-- 부관리자 권한 토글 (관리자 전용 · 부관리자 접속 시 JS에서 숨김) -->
+        <div class="share-fav-toggle-wrap" id="shareDeputyWrap">
+            <div class="share-fav-toggle-info">
+                <span class="share-fav-toggle-label">👤 부관리자 권한 부여</span>
+                <span class="share-fav-toggle-desc">수신자도 공유 링크 생성 가능 (기간 최대 90일 · PWA 설치 시 즉시 파기)</span>
+            </div>
+            <label class="sft-switch">
+                <input type="checkbox" id="shareDeputyToggle">
+                <span class="sft-slider"></span>
+            </label>
+        </div>
+
+        <!-- 부관리자 접속 시에만 노출되는 안내 (기본 숨김) -->
+        <div id="shareDeputyHint" class="share-deputy-hint" style="display:none">
+            <span class="sdh-badge">👤 부관리자</span>
+            <span class="sdh-text">
+                부관리자 권한으로 공유 링크를 발급합니다.<br>
+                기간은 최대 <b>90일</b>이며 원본 만료 시각을 넘길 수 없습니다.
+            </span>
+        </div>
+
         <!-- 생성된 공유 메시지 미리보기 -->
         <div id="shareResultBox" class="share-result-box" style="display:none">
             <div class="share-exp-label" id="shareExpLabel"></div>
@@ -213,6 +234,6 @@
     </div>
 </div>
 
-<script src="js/app.js?v=89"></script>
+<script src="js/app.js?v=91"></script>
 </body>
 </html>
