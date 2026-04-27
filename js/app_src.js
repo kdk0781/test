@@ -1347,6 +1347,57 @@ function buildRegionChips(regions) {
         }
         applyFilters();
     });
+
+    /* ── PC 마우스 드래그 스크롤 ──
+       모바일은 터치 스크롤이 네이티브로 작동하지만,
+       PC에서는 가로 스크롤이 직관적이지 않으므로
+       마우스 클릭+드래그로 좌우 이동 가능하게 처리.
+       짧은 클릭(5px 이내)은 칩 클릭으로 판정 → 드래그와 클릭 충돌 방지. */
+    let isDragging = false;
+    let startX = 0;
+    let scrollStart = 0;
+    let dragMoved = false;
+
+    wrap.addEventListener('mousedown', (e) => {
+        /* 버튼 위에서 시작해도 드래그 가능 */
+        isDragging = true;
+        dragMoved = false;
+        startX = e.pageX;
+        scrollStart = wrap.scrollLeft;
+        wrap.style.cursor = 'grabbing';
+        wrap.style.userSelect = 'none';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.pageX - startX;
+        if (Math.abs(dx) > 5) dragMoved = true;
+        wrap.scrollLeft = scrollStart - dx;
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        wrap.style.cursor = '';
+        wrap.style.userSelect = '';
+    });
+
+    /* 드래그 중 칩 클릭 방지 — 5px 이상 이동했으면 클릭 이벤트 차단 */
+    wrap.addEventListener('click', (e) => {
+        if (dragMoved) {
+            e.stopPropagation();
+            e.preventDefault();
+            dragMoved = false;
+        }
+    }, { capture: true });
+
+    /* 마우스 휠 → 가로 스크롤 변환 (Shift 없이도 작동) */
+    wrap.addEventListener('wheel', (e) => {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            e.preventDefault();
+            wrap.scrollLeft += e.deltaY;
+        }
+    }, { passive: false });
 }
 
 /* ════════════════════════════════════════════
